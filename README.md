@@ -23,7 +23,9 @@ The frontend and backend are successfully communicating.
 
 ## 🏗 Project Structure
 WEBRTC/
+
 ├── client/ # React frontend (Vite)
+
 └── server/ # Node.js backend with Mediasoup
 
 ---
