@@ -1,9 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import socket from "../socket";
-import { loadDevice, createSendTransport } from "../webrtc/device";
+import {
+  loadDevice,
+  createSendTransport,
+  createRecvTransport,
+  consume
+} from "../webrtc/device";
 
 const MeetingRoom = () => {
+
   const [deviceReady, setDeviceReady] = useState(false);
+  const [remoteStreams, setRemoteStreams] = useState([]); // ✅ moved here
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -13,6 +20,32 @@ const MeetingRoom = () => {
     });
   }, []);
 
+  // ✅ moved inside component
+  useEffect(() => {
+    socket.on("new-producer", async ({ producerId }) => {
+      const recvTransport = await createRecvTransport();
+      const stream = await consume(recvTransport, producerId);
+
+      setRemoteStreams(prev => [...prev, stream]);
+    });
+
+    // cleanup to prevent duplicate listeners
+    return () => {
+      socket.off("new-producer");
+    };
+  }, []);
+  
+  useEffect(() => {
+    socket.emit("getProducers", async (producerIds) => {
+      for (const producerId of producerIds) {
+        const recvTransport = await createRecvTransport();
+        const stream = await consume(recvTransport, producerId);
+
+        setRemoteStreams((prev) => [...prev, stream]);
+      }
+    });
+  }, [deviceReady]);
+
   const startCamera = async () => {
     const transport = await createSendTransport();
 
@@ -21,14 +54,11 @@ const MeetingRoom = () => {
       audio: true,
     });
 
-    // 🎥 Show local preview
     videoRef.current.srcObject = stream;
 
     const track = stream.getVideoTracks()[0];
 
-    await transport.produce({
-      track,
-    });
+    await transport.produce({ track });
 
     console.log("🎥 Camera Streaming Started");
   };
@@ -37,6 +67,7 @@ const MeetingRoom = () => {
     <div>
       <h2>Meeting Room</h2>
 
+      {/* Local Video */}
       <video
         ref={videoRef}
         autoPlay
@@ -44,6 +75,19 @@ const MeetingRoom = () => {
         muted
         width="400"
       />
+
+      {/* Remote Videos */}
+      {remoteStreams.map((stream, index) => (
+        <video
+          key={index}
+          autoPlay
+          playsInline
+          width="300"
+          ref={(el) => {
+            if (el) el.srcObject = stream;
+          }}
+        />
+      ))}
 
       {deviceReady && (
         <button onClick={startCamera}>
