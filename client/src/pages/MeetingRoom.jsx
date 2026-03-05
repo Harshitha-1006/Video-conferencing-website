@@ -1,3 +1,4 @@
+import "./MeetingRoom.css";
 import React, { useEffect, useRef, useState } from "react";
 import socket from "../socket";
 import {
@@ -12,38 +13,72 @@ const MeetingRoom = () => {
   const [deviceReady, setDeviceReady] = useState(false);
   const [remoteStreams, setRemoteStreams] = useState([]); // ✅ moved here
   const videoRef = useRef(null);
-
+  const recvTransportRef = useRef(null);
+  const joinedRef = useRef(false);
   useEffect(() => {
-    socket.emit("getRouterRtpCapabilities", async (routerRtpCapabilities) => {
-      await loadDevice(routerRtpCapabilities);
-      setDeviceReady(true);
-    });
-  }, []);
+
+    const handleNewProducer = async ({ producerId }) => {
+      if (!recvTransportRef.current) return;
+
+      const stream = await consume(
+        recvTransportRef.current,
+        producerId
+      );
+
+      setRemoteStreams(prev => [...prev, stream]);
+    };
+
+      if (joinedRef.current) return;
+      joinedRef.current = true;
+    
+      socket.emit("joinRoom", { room: "test-room" }, async (routerRtpCapabilities) => {
+        await loadDevice(routerRtpCapabilities);
+        setDeviceReady(true);
+
+        const waitForTransport = () =>
+          new Promise(resolve => {
+            const interval = setInterval(() => {
+              if (recvTransportRef.current) {
+                clearInterval(interval);
+                resolve(true);
+              }
+            }, 50);
+          });
+
+        await waitForTransport();
+        socket.emit("getProducers", async (producerIds) => {
+          for (const producerId of producerIds) {
+            if (!recvTransportRef.current) return;
+
+            const stream = await consume(
+              recvTransportRef.current,
+              producerId
+            );
+
+            setRemoteStreams(prev => [...prev, stream]);
+          }
+        });
+      });
+
+      socket.on("new-producer", handleNewProducer);
+
+    // ✅ Cleanup
+      return () => {
+        socket.off("new-producer", handleNewProducer);
+      };
+
+    }, []);
 
   // ✅ moved inside component
   useEffect(() => {
-    socket.on("new-producer", async ({ producerId }) => {
-      const recvTransport = await createRecvTransport();
-      const stream = await consume(recvTransport, producerId);
+    const setupRecvTransport = async () => {
+      if (!deviceReady) return;
 
-      setRemoteStreams(prev => [...prev, stream]);
-    });
-
-    // cleanup to prevent duplicate listeners
-    return () => {
-      socket.off("new-producer");
+      recvTransportRef.current = await createRecvTransport();
+      console.log("✅ Recv Transport Created Once");
     };
-  }, []);
-  
-  useEffect(() => {
-    socket.emit("getProducers", async (producerIds) => {
-      for (const producerId of producerIds) {
-        const recvTransport = await createRecvTransport();
-        const stream = await consume(recvTransport, producerId);
 
-        setRemoteStreams((prev) => [...prev, stream]);
-      }
-    });
+    setupRecvTransport();
   }, [deviceReady]);
 
   const startCamera = async () => {
@@ -56,44 +91,53 @@ const MeetingRoom = () => {
 
     videoRef.current.srcObject = stream;
 
-    const track = stream.getVideoTracks()[0];
-
-    await transport.produce({ track });
+    stream.getTracks().forEach(track => {
+      transport.produce({ track });
+    });
 
     console.log("🎥 Camera Streaming Started");
   };
 
   return (
-    <div>
+    <div className="meeting-container">
+
       <h2>Meeting Room</h2>
 
-      {/* Local Video */}
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        width="400"
-      />
+      <div className="video-grid">
 
-      {/* Remote Videos */}
-      {remoteStreams.map((stream, index) => (
-        <video
-          key={index}
-          autoPlay
-          playsInline
-          width="300"
-          ref={(el) => {
-            if (el) el.srcObject = stream;
-          }}
-        />
-      ))}
+        {/* Local Video */}
+        <div className="video-tile">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+          />
+        </div>
 
-      {deviceReady && (
-        <button onClick={startCamera}>
-          Start Camera
-        </button>
-      )}
+        {/* Remote Videos */}
+        {remoteStreams.map((stream, index) => (
+          <div key={index} className="video-tile">
+            <video
+              autoPlay
+              playsInline
+              ref={(el) => {
+                if (el) el.srcObject = stream;
+              }}
+            />
+          </div>
+        ))}
+
+      </div>
+
+      <div className="controls">
+        {deviceReady && (
+          <button onClick={startCamera}>
+            Start Camera
+          </button>
+        )}
+      </div>
+
     </div>
   );
 };

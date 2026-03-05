@@ -1,3 +1,5 @@
+const rooms = {};
+
 module.exports = (io, router) => {
   let transports = [];
   let producers = [];
@@ -5,6 +7,7 @@ module.exports = (io, router) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
+    let roomName;
 
     // ---------------------------------------------------
     // Get Router Capabilities
@@ -13,15 +16,35 @@ module.exports = (io, router) => {
       callback(router.rtpCapabilities);
     });
 
+    socket.on("joinRoom", ({ room }, callback) => {
+
+      roomName = room;
+
+      socket.join(roomName);
+
+      if (!rooms[roomName]) {
+        rooms[roomName] = [];
+      }
+
+      rooms[roomName].push(socket.id);
+
+      console.log(`User ${socket.id} joined room ${roomName}`);
+
+      callback(router.rtpCapabilities);
+
+    });
+
     // ---------------------------------------------------
     // Get Existing Producers (For New User)
     // ---------------------------------------------------
     socket.on("getProducers", (callback) => {
+
       const producerList = producers
-        .filter((p) => p.socketId !== socket.id)
-        .map((p) => p.producer.id);
+        .filter(p => p.socketId !== socket.id && rooms[roomName]?.includes(p.socketId))
+        .map(p => p.producer.id);
 
       callback(producerList);
+
     });
 
     // ---------------------------------------------------
@@ -89,7 +112,7 @@ module.exports = (io, router) => {
         console.log("Producer created:", producer.id);
 
         // ✅ Notify ALL other users
-        socket.broadcast.emit("new-producer", {
+        socket.to(roomName).emit("new-producer", {
           producerId: producer.id,
         });
 
