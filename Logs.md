@@ -1,6 +1,6 @@
 **VIDEO CONFERENCING WEBSITE :**
 
-**Day 1: 22/2/2026**
+**Day 1: 21/2/2026**
 
 * GitHub repo created by Harshitha: Video-conferencing-website
 * I created README.md file in root
@@ -33,61 +33,53 @@ Video-conferencing-website/
 * Ready to start backend setup in /server tomorrow
 
 
+**Day 2: 22–23/2/2026 – Backend Setup & Auth System**
+
+Installed required packages: express, cors, dotenv, mongoose, bcrypt, jsonwebtoken
+Created server/index.js:
+Initialized Express server
+Configured JSON middleware and CORS
+Connected to MongoDB (mongodb://localhost:27017/video_conferencing) using dotenv
+Faced and resolved issues with .env loading
+Tested MongoDB connection locally (switched from Compass to mongod when needed)
+Created backend folder structure:
+server/
+├── controllers/ → authController.js
+├── models/ → User.js, Room.js
+├── routes/ → authRoutes.js, roomRoutes.js
+├── middleware/ → authMiddleware.js (JWT verification)
+
+Implemented authentication system:
+POST /api/auth/register → user registration with hashed password
+POST /api/auth/login → login with JWT token issuance
+Implemented Room model and basic room routes
+Added authMiddleware to protect routes
+Created .gitignore to exclude node_modules and other unnecessary files
+Removed node_modules from Git tracking
+Verified server runs on port 5000, API endpoints reachable locally
+Tested functionality using Node logs and Thunder Client:
+Registered new users
+Logged in and received JWT tokens
+Accessed protected routes with JWT in Authorization header
+Multiple commits made:
+"Setup basic Express server structure"
+"Remove node_modules from Git tracking"
+"Added authentication APIs"
+"Week 1: Auth system, JWT middleware, Room model and routes"
+Pushed changes to feature/auth-system
+Merged feature/auth-system into develop → Week 1 backend work safely on GitHub
+Ensured .env not committed for security
 
 
 
-**Day 2: 23/2/2026**
+**Day 3: 17/3/2026 – Verification & Documentation**
 
-* Setup basic Node + Express server in /server/index.js
-* Added express, cors, and mongoose dependencies
-* Configured JSON middleware and CORS
-* Created .env file (local, not pushed) with:
-* MONGO\_URI=mongodb://localhost:27017/video\_conferencing
-* PORT=5000
-* JWT\_SECRET=Sirak@450
-* Verified MongoDB connection works locally
-* Created backend folder structure:
-
-&#x09;controllers/ → authController.js
-
-&#x09;models/ → User.js and Room.js
-
-&#x09;routes/ → authRoutes.js and roomRoutes.js
-
-&#x09;middleware/ → authMiddleware.js (JWT authentication)
-
-* Implemented authentication system:
-* POST /api/auth/register → user registration with hashed password (bcrypt)
-* POST /api/auth/login → login with JWT token issuance
-* Implemented Room model and basic room routes
-* Tested server with Node → confirmed server runs and connects to MongoDB
-* Verified .env loads correctly using dotenv package
-* Logged debug outputs to ensure environment variables (MONGO\_URI, PORT) are working
-* Confirmed server listens on port 5000
-* Added authMiddleware to protect API routes (JWT verification)
-* Tested backend functionality using Node + logs (before frontend integration)
-* Added all implemented files to git staging (except .env)
-* Committed changes with message: "Week 1: Auth system, JWT middleware, Room model and routes"
-* Pushed commit to feature/auth-system branch
-* PR merge to develop confirmed → Week 1 backend work now safely on develop
-
-
-
-
-
-**Day 3: 17/3/2026**
-
-* Verified backend functionality using Thunder Client in VS Code:
-* Tested POST /api/auth/register → successfully registered new users
-* Tested POST /api/auth/login → received JWT token upon valid login
-* Tested protected routes (e.g., /api/rooms) with JWT in Authorization header → access granted
-* Confirmed MongoDB connection still working correctly during API tests
-* Checked server logs → all requests handled correctly, no errors
-* Ensured .env is not committed to repository for security
-* Reviewed branch structure: feature/auth-system merged into develop → all Week 1 backend work safely on GitHub
-* Confirmed server runs on port 5000, API endpoints reachable locally
-* Made final commits for Week 1 backend work (auth system, JWT middleware, room model/routes)
-* Documented changes in Logs.md for Week 1
-* Checked git status → working tree clean, branch up to date with origin/develop
-* Week 1 backend ownership (auth + DB) fully complete
-
+Verified backend functionality thoroughly using Thunder Client
+Confirmed:
+MongoDB connection stable
+Auth routes working as expected
+Protected routes accessible with JWT
+Checked server logs → no errors
+Git status clean; branch up to date with origin/develop
+Documented Week 1 backend work in Logs.md
+Week 1 backend ownership (auth system + DB) fully complete
