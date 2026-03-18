@@ -15,6 +15,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const roomRoutes = require("./routes/roomRoutes");
 const authRoutes = require("./routes/authRoutes");
+const http = require("http");
+const { Server } = require("socket.io");
 
 // MIDDLEWARE
 app.use(cors());
@@ -36,5 +38,16 @@ mongoose.connect(MONGO_URI)
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*", // later replace with frontend URL
+  },
+});
+require("./socket/index")(io);
+
 // Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

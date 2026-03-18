@@ -1,5 +1,6 @@
 **VIDEO CONFERENCING WEBSITE :**
 
+**WEEK 1:**
 **Day 1: 21/2/2026**
 
 * GitHub repo created by Harshitha: Video-conferencing-website
@@ -83,3 +84,26 @@ Checked server logs → no errors
 Git status clean; branch up to date with origin/develop
 Documented Week 1 backend work in Logs.md
 Week 1 backend ownership (auth system + DB) fully complete
+
+
+**Week 2 – Backend & Room/Signaling Tasks**
+
+**Day 4: 18-Mar-2026**
+
+Tasks Completed:
+Socket & Room Setup
+Created socket/index.js to manage rooms and participants.
+Implemented joinRoom, disconnect, and participant tracking.
+Added role handling (host / participant) for permissions.
+Transport & Media Events (Dummy Implementation)
+Added createTransport event (dummy transport info for now).
+Added produce event to send media stream info to server.
+Added consume event to receive media stream info.
+Frontend Integration (React)
+Created src/pages/MeetingRoom.jsx to handle local video/audio.
+Connected to socket server and emitted events.
+Displayed local camera feed; added placeholders for remote feeds.
+Testing
+Verified socket events with testSocket.js and frontend console logs.
+Confirmed produce / consume / createTransport events working.
+Room join/disconnect logic tested with multiple socket clients.
