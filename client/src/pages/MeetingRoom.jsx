@@ -1,136 +1,175 @@
-import React, { useEffect, useRef, useState } from "react";
-import { socket } from "../socket";
+import { useState, useContext, useEffect } from "react"
+import { Container, Button, Typography, Box, Grid, Paper, CircularProgress, Alert } from "@mui/material"
+import { MeetingContext } from "../context/MeetingContext"
 
-const MeetingRoom = () => {
-  const localVideoRef = useRef(null);
-  const [remoteVideos, setRemoteVideos] = useState({}); // store remote streams keyed by socketId
-  const [participants, setParticipants] = useState({}); // store participant info by socketId
 
+import Navbar from "../components/Navbar"
+import VideoTile from "../components/VideoTile"
+import ControlBar from "../components/ControlBar"
+
+function MeetingRoom() {
+
+  const { participants, setParticipants } = useContext(MeetingContext)
+
+  const [darkMode, setDarkMode] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode)
+  }
+
+  // Temporary simulation until backend sends real users
   useEffect(() => {
-    // 🎥 Get camera + mic
-    navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    })
-    .then((stream) => {
-      console.log("Got media stream");
+    try {
+      const fakeUsers = [
+        { id: 1, name: "You" },
+        { id: 2, name: "Participant 1" },
+        { id: 3, name: "Participant 2" },
+        { id: 4, name: "Participant 3" }
+      ]
 
-      // Attach stream to local video element
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
+      setParticipants(fakeUsers)  //Have to replace fakeUsers with data.users
 
-      // 🔥 Send produce event for video and audio
-      ["video", "audio"].forEach((kind) => {
-        socket.emit("produce", {
-          roomId: "123",
-          userId: "user1",
-          kind,
-        });
-      });
-    })
-    .catch((err) => {
-      console.error("Error accessing media devices:", err);
-    });
+      setTimeout(() => {
+        setLoading(false)
+      }, 1000)
 
-    // 🔌 Socket connection
-    socket.connect();
+    } catch (err) {
+      setError("Failed to join meeting")
+    }
+  }, [setParticipants])
 
-    socket.on("connect", () => {
-      console.log("Connected:", socket.id);
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000",
+          color: "white"
+        }}
+      >
+        <CircularProgress color="secondary" size={60} />
 
-      // Join room as host
-      socket.emit("joinRoom", {
-        roomId: "123",
-        userId: "user1",
-        role: "host",
-      });
-    });
+        <Typography variant="h6" sx={{ marginTop: 2 }}>
+          Joining meeting...
+        </Typography>
+      </Box>
+    );
+  }
 
-    // New participant joined
-    socket.on("newParticipant", (data) => {
-      console.log("New participant joined:", data);
-
-      // Save participant info
-      setParticipants((prev) => ({
-        ...prev,
-        [data.socketId]: data,
-      }));
-
-      // Automatically request to consume their media
-      socket.emit("consume", { roomId: "123", userId: "user1", producerId: data.socketId });
-    });
-
-    // Participant left
-    socket.on("participantLeft", (data) => {
-      console.log("Participant left:", data);
-      setRemoteVideos((prev) => {
-        const updated = { ...prev };
-        delete updated[data.socketId];
-        return updated;
-      });
-      setParticipants((prev) => {
-        const updated = { ...prev };
-        delete updated[data.socketId];
-        return updated;
-      });
-    });
-
-    // Consume event
-    socket.on("consumed", (data) => {
-      console.log("✅ Consumed:", data);
-
-      // For now, use a dummy MediaStream for each remote participant
-      const dummyStream = new MediaStream();
-
-      setRemoteVideos((prev) => ({
-        ...prev,
-        [data.producerId || `remote-${Date.now()}`]: dummyStream,
-      }));
-    });
-
-    // Produce confirmation
-    socket.on("produced", (data) => {
-      console.log("✅ Produced:", data);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  if (error) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000"
+        }}
+      >
+        <Alert severity="error" sx={{ width: "400px" }}>
+          {error}
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
-    <div>
-      <h2>Meeting Room</h2>
+    <>
+      <Navbar />
 
-      {/* 🎥 Local Video */}
-      <div style={{ marginBottom: "20px" }}>
-        <strong>You (host)</strong>
-        <video
-          ref={localVideoRef}
-          autoPlay
-          playsInline
-          muted
-          style={{ width: "400px", border: "2px solid black", marginTop: "5px" }}
-        />
-      </div>
+      <Box
+        sx={{
+          backgroundColor: darkMode ? "black" : "white",
+          minHeight: "100vh",
+          position: "relative",
+          margin: 0,
+          paddingTop: "80px"
+        }}
+      >
 
-      {/* 🎥 Remote Videos */}
-      {Object.entries(remoteVideos).map(([id, stream]) => (
-        <div key={id} style={{ marginBottom: "20px" }}>
-          <strong>{participants[id]?.userId || "Remote"}</strong>
-          <video
-            autoPlay
-            playsInline
-            style={{ width: "400px", border: "2px solid blue", marginTop: "5px" }}
-            ref={(videoEl) => {
-              if (videoEl && stream) videoEl.srcObject = stream;
-            }}
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
+        {/* Theme Button */}
+        <Button
+          variant="contained"
+          onClick={toggleTheme}
+          color="secondary"
+          sx={{
+            position: "absolute",
+            top: 20,
+            right: 20
+          }}
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </Button>
 
-export default MeetingRoom;
+        <Container maxWidth="lg">
+
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ color: darkMode ? "white" : "black" }}
+          >
+            Meeting Room
+          </Typography>
+
+          {/* Video Grid */}
+          <Grid container spacing={2}>
+
+            {participants.length > 0 ? (
+              participants.map((user) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={user.id}>
+                  <VideoTile name={user.name} />
+                </Grid>
+              ))
+            ) : (
+
+              <>
+                <Grid item xs={12} sm={6}>
+                  <Paper
+                    sx={{
+                      height: "200px",
+                      backgroundColor: darkMode ? "#333" : "#ddd",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: darkMode ? "white" : "black"
+                    }}
+                  >
+                    User Video
+                  </Paper>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <Paper
+                    sx={{
+                      height: "200px",
+                      backgroundColor: darkMode ? "#333" : "#ddd",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: darkMode ? "white" : "black"
+                    }}
+                  >
+                    Participant
+                  </Paper>
+                </Grid>
+              </>
+            )}
+
+          </Grid>
+
+          <ControlBar />
+
+        </Container>
+      </Box>
+    </>
+  )
+}
+
+export default MeetingRoom
