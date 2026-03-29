@@ -48,6 +48,14 @@ module.exports = (io) => {
       });
     });
 
+    // 🔹 New File Upload Event
+    socket.on("fileUploaded", ({ roomId, file }) => {
+      console.log(`File uploaded in room ${roomId}:`, file);
+
+      // Broadcast 'newFile' event to everyone else in the room except sender
+      socket.to(roomId).emit("newFile", file);
+    });
+
     // Disconnect cleanup
     socket.on("disconnect", () => {
       for (const roomId in rooms) {
