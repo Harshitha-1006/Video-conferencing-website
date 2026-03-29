@@ -107,3 +107,19 @@ Testing
 Verified socket events with testSocket.js and frontend console logs.
 Confirmed produce / consume / createTransport events working.
 Room join/disconnect logic tested with multiple socket clients.
+
+**WEEK 3 – Backend File Sharing System**
+
+**Day 5: 29/03/2026**
+
+Created feature/file-sharing branch for backend file-sharing functionality.
+Implemented File model (File.js) for uploaded file metadata.
+Added Multer middleware (uploadMiddleware.js) for handling file uploads to server/uploads/.
+Created file routes (fileRoutes.js) and controller (fileController.js) for upload/download APIs.
+Added .gitignore to exclude server/node_modules/.
+Committed and pushed feature/file-sharing branch to GitHub.
+Pulled latest develop branch and merged updates; pushed changes to remote.
+Tested file upload/download endpoints; verified files are saved correctly and metadata stored in MongoDB.
+Verified branches:
+feature/file-sharing → all Week 3 backend files present
+develop → updated and synced with remote
