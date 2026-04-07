@@ -1,12 +1,39 @@
 import { useState } from "react"
-import { Container, TextField, Button, Typography, Box } from "@mui/material"
+import { useNavigate } from "react-router-dom"
+import { Container, TextField, Button, Typography, Box, CircularProgress, Alert } from "@mui/material"
 
 function Login() {
+  const navigate = useNavigate()
 
   const [darkMode, setDarkMode] = useState(true)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const toggleTheme = () => {
     setDarkMode(!darkMode)
+  }
+
+  const handleLogin = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || data.error || "Login failed")
+      
+      localStorage.setItem("token", data.token)
+      navigate("/dashboard")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -42,14 +69,17 @@ function Login() {
           Login
         </Typography>
 
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
         <TextField
           fullWidth
           label="Email"
           margin="normal"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           sx={{
             backgroundColor: darkMode ? "grey" : "white",
             "&:hover": { backgroundColor: "white" }
-            
           }}
         />
 
@@ -58,6 +88,8 @@ function Login() {
           label="Password"
           type="password"
           margin="normal"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           sx={{
             backgroundColor: darkMode ? "grey" : "white",
             "&:hover": { backgroundColor: "white" }
@@ -68,9 +100,20 @@ function Login() {
           variant="contained"
           fullWidth
           color="secondary"
+          onClick={handleLogin}
+          disabled={loading}
           sx={{ marginTop: "20px" }}
         >
-          Login
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+        </Button>
+
+        <Button
+          variant="text"
+          fullWidth
+          onClick={() => navigate("/register")}
+          sx={{ marginTop: "10px" }}
+        >
+          First time here? Register
         </Button>
 
       </Container>
