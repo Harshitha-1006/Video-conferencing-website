@@ -1,76 +1,102 @@
+const logger = require("../logger");
 module.exports = (io) => {
   const rooms = {}; // in-memory storage
-
   io.on("connection", (socket) => {
-    console.log("New socket connected:", socket.id);
+    logger.info("New socket connected:", socket.id);
 
     // Join room
     socket.on("joinRoom", ({ roomId, userId, role }) => {
-      if (!rooms[roomId]) rooms[roomId] = { participants: {} };
+      if (!rooms[roomId]) {
+        rooms[roomId] = { participants: {} };
+      }
+
+      // Store user info on socket (IMPORTANT for cleanup)
+      socket.roomId = roomId;
+      socket.userId = userId;
 
       rooms[roomId].participants[socket.id] = { userId, role };
       socket.join(roomId);
 
-      console.log(`${userId} joined room ${roomId}`);
-      console.log("Current room participants:", rooms[roomId].participants);
+      logger.info(`${userId} joined room ${roomId}`);
+      logger.info("Participants:", rooms[roomId].participants);
 
-      // Notify existing participants
-      socket.to(roomId).emit("newParticipant", { socketId: socket.id, userId, role });
+      // Notify others
+      socket.to(roomId).emit("newParticipant", {
+        socketId: socket.id,
+        userId,
+        role,
+      });
 
-      // 🔹 Notify all existing participants to "consume" this new participant
+      // Notify existing users to consume media
       Object.keys(rooms[roomId].participants).forEach((socketId) => {
         if (socketId !== socket.id) {
           io.to(socketId).emit("consumed", {
             success: true,
             message: `Ready to receive media from ${userId}`,
             producerId: socket.id,
-            kind: "video/audio", // dummy info
+            kind: "video/audio",
           });
         }
       });
+    });
 
-      // Create transport (placeholder)
-      socket.on("createTransport", async ({ roomId, userId }) => {
-        console.log(`Transport requested by ${userId} in room ${roomId}`);
-        socket.emit("transportCreated", { transportId: "dummy-transport-id" });
-      });
-
-      // Produce event (sending media)
-      socket.on("produce", ({ roomId, userId, kind }) => {
-        console.log(`${userId} wants to produce ${kind} in room ${roomId}`);
-        socket.emit("produced", { success: true, kind });
-      });
-
-      // Consume event (receive media)
-      socket.on("consume", ({ roomId, userId }) => {
-        console.log(`${userId} requested to consume media in room ${roomId}`);
-        socket.emit("consumed", { success: true, message: "Ready to receive media" });
+    // Create transport
+    socket.on("createTransport", ({ roomId, userId }) => {
+      logger.info(`Transport requested by ${userId} in room ${roomId}`);
+      socket.emit("transportCreated", {
+        transportId: "dummy-transport-id",
       });
     });
 
-    // 🔹 New File Upload Event
-    socket.on("fileUploaded", ({ roomId, file }) => {
-      console.log(`File uploaded in room ${roomId}:`, file);
+    // Produce media
+    socket.on("produce", ({ roomId, userId, kind }) => {
+      logger.info(`${userId} producing ${kind} in room ${roomId}`);
+      socket.emit("produced", { success: true, kind });
+    });
 
-      // Broadcast 'newFile' event to everyone else in the room except sender
+    // Consume media
+    socket.on("consume", ({ roomId, userId }) => {
+      logger.info(`${userId} consuming media in room ${roomId}`);
+      socket.emit("consumed", {
+        success: true,
+        message: "Ready to receive media",
+      });
+    });
+
+    // File upload
+    socket.on("fileUploaded", ({ roomId, file }) => {
+      logger.info(`File uploaded in room ${roomId}:`, file);
       socket.to(roomId).emit("newFile", file);
     });
 
-    // Disconnect cleanup
+    // ✅ Improved Disconnect Cleanup
     socket.on("disconnect", () => {
-      for (const roomId in rooms) {
-        if (rooms[roomId].participants[socket.id]) {
-          const user = rooms[roomId].participants[socket.id];
-          delete rooms[roomId].participants[socket.id];
+      const roomId = socket.roomId;
+      const userId = socket.userId;
 
-          socket.to(roomId).emit("participantLeft", { socketId: socket.id, userId: user.userId });
-
-          if (Object.keys(rooms[roomId].participants).length === 0) {
-            delete rooms[roomId];
-          }
-        }
+      if (!roomId || !rooms[roomId]) {
+        logger.info("Socket disconnected:", socket.id);
+        return;
       }
-      console.log("Socket disconnected:", socket.id);
+
+      // Remove user
+      delete rooms[roomId].participants[socket.id];
+
+      // Notify others
+      socket.to(roomId).emit("participantLeft", {
+        socketId: socket.id,
+        userId,
+      });
+
+      logger.info(`${userId} left room ${roomId}`);
+
+      // Delete room if empty
+      if (Object.keys(rooms[roomId].participants).length === 0) {
+        delete rooms[roomId];
+        logger.info(`Room ${roomId} deleted (empty)`);
+      }
+
+      logger.info("Socket disconnected:", socket.id);
     });
   });
 };

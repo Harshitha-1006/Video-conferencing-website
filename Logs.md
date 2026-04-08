@@ -123,3 +123,14 @@ Tested file upload/download endpoints; verified files are saved correctly and me
 Verified branches:
 feature/file-sharing → all Week 3 backend files present
 develop → updated and synced with remote
+
+**WEEK 4 - Backend Optimization**
+
+**Day 6: 08/04/2026**
+
+Optimized MongoDB queries by adding indexes and using lean queries.
+Implemented rate limiting (100 requests per 15 mins).
+Managed rooms & socket cleanup (participants removed, rooms deleted when empty).
+Integrated winston for structured logging, replacing console.log.
+Skipped API docs, security, and deployment setup .
+Final testing: Backend running on port 5000, API and socket events (join, produce, consume) working fine.

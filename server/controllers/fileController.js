@@ -1,5 +1,5 @@
 const File = require("../models/File");
-
+const logger = require("../logger");
 exports.uploadFile = async (req, res) => {
   try {
     // Check if file exists
@@ -23,7 +23,7 @@ exports.uploadFile = async (req, res) => {
       file: newFile,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({
       message: "File upload failed",
       error: error.message,
