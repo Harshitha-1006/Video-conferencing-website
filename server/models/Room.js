@@ -12,11 +12,14 @@ const roomSchema = new mongoose.Schema({
       ref: "User"
     }
   ],
-
+  
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
+
+roomSchema.index({ roomId: 1 });
+roomSchema.index({ createdAt: 1 });
 
 module.exports = mongoose.model("Room", roomSchema);

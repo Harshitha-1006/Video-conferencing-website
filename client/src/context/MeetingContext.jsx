@@ -1,24 +1,26 @@
-import { createContext, useState } from "react"
+import React, { createContext, useState } from "react";
 
-export const MeetingContext = createContext()
+// Create context
+export const MeetingContext = createContext();
 
+// Provider
 export const MeetingProvider = ({ children }) => {
+  // Meeting state
+  const [micOn, setMicOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(true);
+  const [participants, setParticipants] = useState([]);
 
-  const [micOn, setMicOn] = useState(true)
-  const [cameraOn, setCameraOn] = useState(true)
-  const [participants, setParticipants] = useState([])
+  // User state
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [roomId, setRoomId] = useState("");
 
-  const toggleMic = () => {
-    setMicOn(!micOn)
-  }
-
-  const toggleCamera = () => {
-    setCameraOn(!cameraOn)
-  }
-
+  // Handlers
+  const toggleMic = () => setMicOn(!micOn);
+  const toggleCamera = () => setCameraOn(!cameraOn);
   const leaveRoom = () => {
-    window.location.href = "/dashboard"
-  }
+    window.location.href = "/dashboard";
+  };
 
   return (
     <MeetingContext.Provider
@@ -29,10 +31,16 @@ export const MeetingProvider = ({ children }) => {
         setParticipants,
         toggleMic,
         toggleCamera,
-        leaveRoom
+        leaveRoom,
+        user,
+        setUser,
+        token,
+        setToken,
+        roomId,
+        setRoomId,
       }}
     >
       {children}
     </MeetingContext.Provider>
-  )
-}
+  );
+};

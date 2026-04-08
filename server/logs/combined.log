@@ -1,0 +1,98 @@
+{"level":"info","message":"DIRNAME:"}
+{"level":"info","message":"ENV PATH:"}
+{"level":"info","message":"ENV EXISTS:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"Server running on port 5000"}
+{"level":"info","message":"MongoDB connected successfully!"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"DIRNAME:"}
+{"level":"info","message":"ENV PATH:"}
+{"level":"info","message":"ENV EXISTS:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"Server running on port 5000"}
+{"level":"info","message":"MongoDB connected successfully!"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"DIRNAME:"}
+{"level":"info","message":"ENV PATH:"}
+{"level":"info","message":"ENV EXISTS:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"Server running on port 5000"}
+{"level":"info","message":"MongoDB connected successfully!"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"Socket disconnected:"}
+{"level":"info","message":"Socket disconnected:"}
+{"level":"info","message":"Socket disconnected:"}
+{"level":"info","message":"DIRNAME:"}
+{"level":"info","message":"ENV PATH:"}
+{"level":"info","message":"ENV EXISTS:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"Server running on port 5000"}
+{"level":"info","message":"MongoDB connected successfully!"}
+{"level":"info","message":"DIRNAME:"}
+{"level":"info","message":"ENV PATH:"}
+{"level":"info","message":"ENV EXISTS:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"ENV CHECK:"}
+{"level":"info","message":"Server running on port 5000"}
+{"level":"info","message":"MongoDB connected successfully!"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"New socket connected:"}
+{"level":"info","message":"[user2] Connected:"}
+{"level":"info","message":"[user1] Connected:"}
+{"level":"info","message":"user1 joined room 123"}
+{"level":"info","message":"[user3] Connected:"}
+{"level":"info","message":"[user1] Transport info received:","transportId":"dummy-transport-id"}
+{"kind":"video","level":"info","message":"[user1] Produce acknowledged:","success":true}
+{"level":"info","message":"Participants:","x-ELtswEyUhNMhSVAAAG":{"role":"host","userId":"user1"}}
+{"level":"info","message":"Transport requested by user1 in room 123"}
+{"level":"info","message":"user1 producing video in room 123"}
+{"level":"info","message":"user1 producing audio in room 123"}
+{"level":"info","message":"user1 consuming media in room 123"}
+{"kind":"audio","level":"info","message":"[user1] Produce acknowledged:","success":true}
+{"level":"info","message":"[user1] Consume acknowledged: Ready to receive media","success":true}
+{"level":"info","message":"[user1] New participant joined:","role":"participant","socketId":"ctXmlmrZ3ngrGZa1AAAF","userId":"user2"}
+{"kind":"video/audio","level":"info","message":"[user1] Consume acknowledged: Ready to receive media from user2","producerId":"ctXmlmrZ3ngrGZa1AAAF","success":true}
+{"level":"info","message":"[user1] New participant joined:","role":"participant","socketId":"4TI8l2xaOyphX5wdAAAH","userId":"user3"}
+{"level":"info","message":"user2 joined room 123"}
+{"ctXmlmrZ3ngrGZa1AAAF":{"role":"participant","userId":"user2"},"level":"info","message":"Participants:","x-ELtswEyUhNMhSVAAAG":{"role":"host","userId":"user1"}}
+{"level":"info","message":"user3 joined room 123"}
+{"4TI8l2xaOyphX5wdAAAH":{"role":"participant","userId":"user3"},"ctXmlmrZ3ngrGZa1AAAF":{"role":"participant","userId":"user2"},"level":"info","message":"Participants:","x-ELtswEyUhNMhSVAAAG":{"role":"host","userId":"user1"}}
+{"level":"info","message":"user1 consuming media in room 123"}
+{"level":"info","message":"user1 consuming media in room 123"}
+{"kind":"video/audio","level":"info","message":"[user1] Consume acknowledged: Ready to receive media from user3","producerId":"4TI8l2xaOyphX5wdAAAH","success":true}
+{"level":"info","message":"[user1] Consume acknowledged: Ready to receive media","success":true}
+{"level":"info","message":"[user1] Consume acknowledged: Ready to receive media","success":true}
+{"level":"info","message":"Transport requested by user2 in room 123"}
+{"level":"info","message":"[user2] New participant joined:","role":"participant","socketId":"4TI8l2xaOyphX5wdAAAH","userId":"user3"}
+{"kind":"video/audio","level":"info","message":"[user2] Consume acknowledged: Ready to receive media from user3","producerId":"4TI8l2xaOyphX5wdAAAH","success":true}
+{"level":"info","message":"user2 producing video in room 123"}
+{"level":"info","message":"user2 producing audio in room 123"}
+{"level":"info","message":"user2 consuming media in room 123"}
+{"level":"info","message":"user2 consuming media in room 123"}
+{"level":"info","message":"[user2] Transport info received:","transportId":"dummy-transport-id"}
+{"kind":"video","level":"info","message":"[user2] Produce acknowledged:","success":true}
+{"kind":"audio","level":"info","message":"[user2] Produce acknowledged:","success":true}
+{"level":"info","message":"[user2] Consume acknowledged: Ready to receive media","success":true}
+{"level":"info","message":"[user2] Consume acknowledged: Ready to receive media","success":true}
+{"level":"info","message":"Transport requested by user3 in room 123"}
+{"level":"info","message":"[user3] Transport info received:","transportId":"dummy-transport-id"}
+{"kind":"video","level":"info","message":"[user3] Produce acknowledged:","success":true}
+{"kind":"audio","level":"info","message":"[user3] Produce acknowledged:","success":true}
+{"level":"info","message":"user3 producing video in room 123"}
+{"level":"info","message":"user3 producing audio in room 123"}
+{"level":"info","message":"user3 consuming media in room 123"}
+{"level":"info","message":"[user3] Consume acknowledged: Ready to receive media","success":true}

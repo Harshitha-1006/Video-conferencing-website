@@ -3,7 +3,7 @@
 // const socket = io("http://localhost:5000");
 
 // socket.on("connect", () => {
-//   console.log("Connected:", socket.id);
+//   logger.info("Connected:", socket.id);
 
 //   // Join the test room with role as "host"
 //   socket.emit("joinRoom", { roomId: "123", userId: "user1", role: "host" });
@@ -20,37 +20,37 @@
 
 // // Listen for new participant joining the room
 // socket.on("newParticipant", (data) => {
-//   console.log("New participant joined:", data);
+//   logger.info("New participant joined:", data);
 // });
 
 // // Listen for participant leaving the room
 // socket.on("participantLeft", (data) => {
-//   console.log("Participant left:", data);
+//   logger.info("Participant left:", data);
 // });
 
 // // Listen for transport creation acknowledgment (placeholder)
 // socket.on("transportCreated", (data) => {
-//   console.log("Transport info received:", data);
+//   logger.info("Transport info received:", data);
 // });
 
 // // Listen for produce acknowledgment
 // socket.on("produced", (data) => {
-//   console.log("Produce acknowledged:", data);
+//   logger.info("Produce acknowledged:", data);
 // });
 
 // // Listen for consume acknowledgment (placeholder)
 // socket.on("consumed", (data) => {
-//   console.log("Consume acknowledged:", data);
+//   logger.info("Consume acknowledged:", data);
 // });
 
 const { io } = require("socket.io-client");
-
+const logger = require("./logger");
 // Helper function to create a new test participant
 function createTestParticipant(userId, role = "participant") {
   const socket = io("http://localhost:5000");
 
   socket.on("connect", () => {
-    console.log(`[${userId}] Connected:`, socket.id);
+    logger.info(`[${userId}] Connected:`, socket.id);
 
     // Join the test room
     socket.emit("joinRoom", { roomId: "123", userId, role });
@@ -69,26 +69,26 @@ function createTestParticipant(userId, role = "participant") {
 
   // Listen for new participants
   socket.on("newParticipant", (data) => {
-    console.log(`[${userId}] New participant joined:`, data);
+    logger.info(`[${userId}] New participant joined:`, data);
     // Automatically consume their media
     socket.emit("consume", { roomId: "123", userId });
   });
 
   // Listen for participant leaving
   socket.on("participantLeft", (data) => {
-    console.log(`[${userId}] Participant left:`, data);
+    logger.info(`[${userId}] Participant left:`, data);
   });
 
   socket.on("transportCreated", (data) => {
-    console.log(`[${userId}] Transport info received:`, data);
+    logger.info(`[${userId}] Transport info received:`, data);
   });
 
   socket.on("produced", (data) => {
-    console.log(`[${userId}] Produce acknowledged:`, data);
+    logger.info(`[${userId}] Produce acknowledged:`, data);
   });
 
   socket.on("consumed", (data) => {
-    console.log(`[${userId}] Consume acknowledged:`, data);
+    logger.info(`[${userId}] Consume acknowledged:`, data);
   });
 }
 
