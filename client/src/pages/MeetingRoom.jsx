@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react"
+import { useState, useContext, useEffect, useMemo } from "react"
 import { Container, Button, Typography, Box, Grid, Paper, CircularProgress, Alert } from "@mui/material"
 import { MeetingContext } from "../context/MeetingContext"
 
@@ -14,6 +14,19 @@ function MeetingRoom() {
   const [darkMode, setDarkMode] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [recording, setRecording] = useState(false)
+  const [recordingBusy, setRecordingBusy] = useState(false)
+  const [recordingError, setRecordingError] = useState("")
+  const [playbackUrl, setPlaybackUrl] = useState("")
+
+  const meetingId = useMemo(() => {
+    const params = new URLSearchParams(window.location.search)
+    return (
+      params.get("roomId") ||
+      localStorage.getItem("meetingId") ||
+      "default-meeting"
+    )
+  }, [])
 
   const toggleTheme = () => {
     setDarkMode(!darkMode)
@@ -39,6 +52,57 @@ function MeetingRoom() {
       setError("Failed to join meeting")
     }
   }, [setParticipants])
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token")
+    if (!token) throw new Error("Please login first")
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    }
+  }
+
+  const handleStartRecording = async () => {
+    setRecordingBusy(true)
+    setRecordingError("")
+    setPlaybackUrl("")
+    try {
+      const res = await fetch("http://localhost:5000/api/recordings/start", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ meetingId })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || "Failed to start recording")
+      setRecording(true)
+    } catch (err) {
+      setRecordingError(err.message)
+    } finally {
+      setRecordingBusy(false)
+    }
+  }
+
+  const handleStopRecording = async () => {
+    setRecordingBusy(true)
+    setRecordingError("")
+    try {
+      const res = await fetch("http://localhost:5000/api/recordings/stop", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ meetingId })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || "Failed to stop recording")
+      setRecording(false)
+      if (data.playbackUrl) {
+        setPlaybackUrl(`http://localhost:5000${data.playbackUrl}`)
+      }
+    } catch (err) {
+      setRecordingError(err.message)
+    } finally {
+      setRecordingBusy(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -117,6 +181,38 @@ function MeetingRoom() {
           >
             Meeting Room
           </Typography>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, flexWrap: "wrap" }}>
+            <Typography sx={{ color: darkMode ? "white" : "black" }}>
+              Meeting ID: {meetingId}
+            </Typography>
+
+            {recording && (
+              <Typography sx={{ color: "#ff4d4d", fontWeight: 700 }}>
+                ● Recording…
+              </Typography>
+            )}
+
+            <Button
+              variant="contained"
+              color={recording ? "error" : "secondary"}
+              onClick={recording ? handleStopRecording : handleStartRecording}
+              disabled={recordingBusy}
+            >
+              {recordingBusy ? "Please wait..." : recording ? "Stop Recording" : "Start Recording"}
+            </Button>
+          </Box>
+
+          {recordingError && <Alert severity="error" sx={{ mb: 2 }}>{recordingError}</Alert>}
+
+          {playbackUrl && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Recording saved.{" "}
+              <a href={playbackUrl} target="_blank" rel="noreferrer">
+                Play / Download
+              </a>
+            </Alert>
+          )}
 
           {/* Video Grid */}
           <Grid container spacing={2}>
